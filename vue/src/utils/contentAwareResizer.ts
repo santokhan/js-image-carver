@@ -32,8 +32,8 @@ export type OnIterationArgs = {
 export const ALPHA_DELETE_THRESHOLD = 244;
 
 // Old: 1500
-export const MAX_WIDTH_LIMIT = 1080; 
-export const MAX_HEIGHT_LIMIT = 1080;
+export const MAX_WIDTH_LIMIT = 860; 
+export const MAX_HEIGHT_LIMIT = 860;
 
 const getPixelDeleteEnergy = (): number => {
   const numColors = 3;
