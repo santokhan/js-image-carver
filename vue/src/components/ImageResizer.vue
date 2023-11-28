@@ -32,7 +32,9 @@
         </form>
         <div v-if="workingImgSize && resizedImgSrc" class="rounded space-y-2">
             <div class="flex justify-between">
-                <p class="font-medium">Resized</p>
+                <p class="font-medium">Resized
+                    <span class="text-sm font-normal">{{ workingImgSize.w }} x {{ workingImgSize.h }} px</span>
+                </p>
                 <div class="border w-8 h-8 grid place-items-center rounded-lg">
                     <button type="button" @click="downloadURL"><i class="fa fa-download" aria-hidden="true"></i></button>
                     <a ref="downloadRef" download="resized-image.png" @click="downloadURL"></a>
@@ -41,7 +43,10 @@
             <img :src="resizedImgSrc" :width="workingImgSize.w" :height="workingImgSize.h" alt="Resized" class="w-full" />
         </div>
         <FadeIn :class="['w-full mb-6 space-y-4', resizedImgSrc || !energyMap ? 'hidden' : '']">
-            <p class="font-medium">Resizing Image</p>
+            <p class="font-medium">Resizing Image
+                <span v-if="workingImgSize" class="text-sm font-normal">{{ workingImgSize.w }} x {{ workingImgSize.h }}
+                    px</span>
+            </p>
             <div className="w-full overflow-scroll">
                 <canvas ref="canvasRef"></canvas>
                 <div v-if="workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
