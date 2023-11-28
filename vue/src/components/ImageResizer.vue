@@ -376,8 +376,14 @@ canImage.onload = function () {
 };
 
 // Santo
-const downloadRef = ref<any>(null)
+const downloadRef = ref<any>(null);
+const download = ref<boolean>(false);
+
 function downloadURL() {
+    download.value = !download.value;
+}
+
+function download_resized_image() {
     if (!canvasRef.value) return;
     canvasRef.value.toBlob((blob: Blob | null): void => {
         if (!blob) return;
@@ -386,6 +392,12 @@ function downloadURL() {
         downloadRef.value.href = imgUrl;
         downloadRef.value.click();
     }, 'image/png');
+    return false;
 }
+watchEffect(() => {
+    if (download.value) {
+        download_resized_image();
+    }
+})
 </script>
   
