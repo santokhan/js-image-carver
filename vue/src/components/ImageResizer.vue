@@ -383,9 +383,7 @@ function downloadURL() {
         if (!blob) return;
         const imgUrl = URL.createObjectURL(blob);
         if (!downloadRef.value) return;
-        console.log(canvasRef.value);
         downloadRef.value.href = imgUrl;
-        console.log(canvasRef.value);
         downloadRef.value.click();
     }, 'image/png');
 }
