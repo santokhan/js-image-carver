@@ -17,7 +17,7 @@
                             SVG, PNG, JPG or GIF (MAX. 800x400px)
                         </p>
                     </div>
-                    <input id="dropzone-file" type="file" class="hidden"
+                    <input id="dropzone-file" type="file" class="hidden" accept="image/*"
                         @change="(e: any) => { onFileSelect(e.target.files) }" />
                 </label>
             </div>
@@ -26,17 +26,22 @@
                 <NumberInput title="Width" class="w-1/2" :value="toWidthScaleString" :handleChange="onWidthSizeChange" />
                 <NumberInput title="Height" class="w-1/2" :value="toHeightScaleString" :handleChange="onHeightSizeChange" />
                 <CheckBox />
-                <ResizeButton />
+                <ResizeButton :disabled="isResizing" />
             </div>
             <hr>
         </form>
-        <!-- <div class="rounded space-y-2">
+        <div v-if="workingImgSize && resizedImgSrc" class="rounded space-y-2">
+            <div class="flex justify-between">
                 <p class="font-medium">Resized</p>
-                <img v-if="workingImgSize && resizedImgSrc" :src="resizedImgSrc" :width="workingImgSize.w"
-                    :height="workingImgSize.h" alt="Resized" class="w-full" />
-            </div> -->
+                <div class="border w-8 h-8 grid place-items-center rounded-lg">
+                    <button type="button" @click="downloadURL"><i class="fa fa-download" aria-hidden="true"></i></button>
+                    <a ref="downloadRef" download="resized-image.png" @click="downloadURL"></a>
+                </div>
+            </div>
+            <img :src="resizedImgSrc" :width="workingImgSize.w" :height="workingImgSize.h" alt="Resized" class="w-full" />
+        </div>
         <FadeIn :class="['w-full mb-6 space-y-4', resizedImgSrc || !energyMap ? 'hidden' : '']">
-            <p class="font-medium">Resized Image</p>
+            <p class="font-medium">Resizing Image</p>
             <div className="w-full overflow-scroll">
                 <canvas ref="canvasRef"></canvas>
                 <div v-if="workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
@@ -369,5 +374,20 @@ canImage.src = imageSrc.value
 canImage.onload = function () {
     // ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 };
+
+// Santo
+const downloadRef = ref<any>(null)
+function downloadURL() {
+    if (!canvasRef.value) return;
+    canvasRef.value.toBlob((blob: Blob | null): void => {
+        if (!blob) return;
+        const imgUrl = URL.createObjectURL(blob);
+        if (!downloadRef.value) return;
+        console.log(canvasRef.value);
+        downloadRef.value.href = imgUrl;
+        console.log(canvasRef.value);
+        downloadRef.value.click();
+    }, 'image/png');
+}
 </script>
   
