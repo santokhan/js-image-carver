@@ -1,6 +1,6 @@
 <template>
-    <div class="space-y-4">
-        <form class="space-y-4">
+    <div class="w-full space-y-4">
+        <form class="space-y-4" @submit="onResize">
             <div class="flex items-center justify-center w-full">
                 <label for="dropzone-file"
                     class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
@@ -26,59 +26,52 @@
                 <NumberInput title="Width" class="w-1/2" :value="toWidthScaleString" :handleChange="onWidthSizeChange" />
                 <NumberInput title="Height" class="w-1/2" :value="toHeightScaleString" :handleChange="onHeightSizeChange" />
                 <CheckBox />
-                <ResizeButton :handle-click="onResize" />
+                <ResizeButton />
             </div>
-
-            <div class="flex items-center gap-8">
-            </div>
+            <hr>
         </form>
-        <hr>
-        <section class="space-y-4">
-            <div class="rounded space-y-2">
+        <!-- <div class="rounded space-y-2">
                 <p class="font-medium">Resized</p>
                 <img v-if="workingImgSize && resizedImgSrc" :src="resizedImgSrc" :width="workingImgSize.w"
                     :height="workingImgSize.h" alt="Resized" class="w-full" />
-            </div>
-
-            <FadeIn>
-                <div className="overflow-scroll">
-                    <canvas ref="canvasRef"></canvas>
-                    <div v-if="workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
-                        <Seams :seams="seams" :width="workingImgSize.w" :height="workingImgSize.h" />
-                    </div>
+            </div> -->
+        <FadeIn :class="['w-full mb-6 space-y-4', resizedImgSrc || !energyMap ? 'hidden' : '']">
+            <p class="font-medium">Resized Image</p>
+            <div className="w-full overflow-scroll">
+                <canvas ref="canvasRef"></canvas>
+                <div v-if="workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
+                    <Seams :seams="seams" :width="workingImgSize.w" :height="workingImgSize.h" />
                 </div>
-            </FadeIn>
-
-            <div class="rounded space-y-2" v-if="workingImgSize && energyMap">
-                <EnergyMap :energyMap="energyMap" :width="workingImgSize.w" :height="workingImgSize.h" />
-                <!-- {seamsCanvas} -->
             </div>
-
-            <div class="rounded space-y-2">
-                <div class="flex items-center gap-2">
-                    <p class="font-medium">Original</p>
-                    <div v-if="originalImgSize" className="text-xs text-gray-600 whitespace-nowrap">
-                        {{ `${originalImgSize.w} x ${originalImgSize.h} px` }}
-                    </div>
+        </FadeIn>
+        <div class="rounded space-y-2" v-if="workingImgSize && energyMap">
+            <!-- <EnergyMap :energyMap="energyMap" :width="workingImgSize.w" :height="workingImgSize.h" /> -->
+            <!-- {seamsCanvas} -->
+        </div>
+        <div class="w-full rounded space-y-2">
+            <div class="flex items-center gap-2">
+                <p class="font-medium">Original</p>
+                <div v-if="originalImgSize" className="text-xs text-gray-600 whitespace-nowrap">
+                    {{ `${originalImgSize.w} x ${originalImgSize.h} px` }}
                 </div>
-                <img :src="imageSrc" alt="Original" ref="imgRef" class="w-full" />
             </div>
-        </section>
+            <img :src="imageSrc" alt="Original" ref="imgRef" class="w-full" />
+        </div>
     </div>
 
-    <div v-if="imgAuthor && imgAuthorURL" class="text-xs text-gray-400 mt-2 flex justify-center items-center font-light">
+    <!-- <div v-if="imgAuthor && imgAuthorURL" class="text-xs text-gray-400 mt-2 flex justify-center items-center font-light">
         <div class="mr-1">Photo by</div>
         <a :href="imgAuthorURL" style="color: #aaa; font-weight: 300;" target="_blank" rel="noreferrer">
             {{ imgAuthor }}
         </a>
-    </div>
+    </div> -->
 
     <div v-if="props.withSeam && workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
         <Seams :seams="seams" :width="workingImgSize.w" :height="workingImgSize.h" />
     </div>
 
-    <span v-if="workingImgSize?.w && originalImgViewSize?.w && workingImgSize.w > originalImgViewSize.w"
-        className="text-xs text-gray-400 ml-4">↔︎ scrollable</span>
+    <!-- <span v-if="workingImgSize?.w && originalImgViewSize?.w && workingImgSize.w > originalImgViewSize.w"
+        className="text-xs text-gray-400 ml-4">↔︎ scrollable</span> -->
 </template>
   
 <script lang="ts" setup>
@@ -274,15 +267,15 @@ const onIteration = async (args: OnIterationArgs): Promise<void> => {
     progress.value = step / steps
 };
 
-const onResize = (): void => {
+const onResize = (e: Event): void => {
+    e.preventDefault();
+
     const srcImg: HTMLImageElement | null = imgRef.value;
-    if (!srcImg) {
-        return;
-    }
+    if (!srcImg) return;
+
     const canvas: HTMLCanvasElement | null = canvasRef.value;
-    if (!canvas) {
-        return;
-    }
+    if (!canvas) return;
+
 
     onReset();
     isResizing.value = true
@@ -308,6 +301,8 @@ const onResize = (): void => {
 
     canvas.width = w;
     canvas.height = h;
+
+    console.log(canvas);
 
     const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
     if (!ctx) {

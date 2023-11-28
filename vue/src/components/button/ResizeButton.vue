@@ -1,5 +1,5 @@
 <template>
-    <button type="button"
+    <button type="submit"
         class="text-gray-100 text-sm font-medium bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center gap-1 px-3 py-2">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
             class="w-5 h-5">
@@ -14,7 +14,7 @@
 type Props = {
     handleClick: () => void
 }
-const props = defineProps<Props>()
+// const props = defineProps<Props>()
 </script>
 
 <style scoped></style>
