@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React, {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -42,8 +43,9 @@ const Mask = (props: MaskProps): React.ReactElement => {
   const [mousePosition, setMousePosition] = useState<MouseCoordinate | null>(null);
 
   const getCoordinates = (event: MouseEvent): MouseCoordinate | null => {
-    if (!canvasRef.current) return null;
-
+    if (!canvasRef.current) {
+      return null;
+    }
     const canvas: HTMLCanvasElement = canvasRef.current;
     return {
       x: event.pageX - canvas.offsetLeft,
@@ -51,39 +53,50 @@ const Mask = (props: MaskProps): React.ReactElement => {
     };
   };
 
+  const startPaint = useCallback((event: MouseEvent) => {
+    if (disabled) return;
 
-
-  const paint = (event: MouseEvent) => {
-    const drawLine = (
-      originalMousePosition: MouseCoordinate,
-      newMousePosition: MouseCoordinate,
-    ): void => {
-      if (!canvasRef.current || disabled) return;
-
-      const canvas: HTMLCanvasElement = canvasRef.current;
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.strokeStyle = lineColor;
-        context.lineJoin = lineJoin;
-        context.lineWidth = lineWidth;
-        context.beginPath();
-        context.moveTo(originalMousePosition.x, originalMousePosition.y);
-        context.lineTo(newMousePosition.x, newMousePosition.y);
-        context.closePath();
-        context.stroke();
-      }
-    };
-
-    if (isPainting) {
-      const newMousePosition = getCoordinates(event);
-      if (mousePosition && newMousePosition) {
-        drawLine(mousePosition, newMousePosition);
-        setMousePosition(newMousePosition);
-      }
+    const coordinates = getCoordinates(event);
+    if (coordinates) {
+      setMousePosition(coordinates);
+      setIsPainting(true);
     }
-  }
+  }, [disabled]);
 
-  const exitPaint = () => {
+  const paint = useCallback(
+    (event: MouseEvent) => {
+      const drawLine = (
+        originalMousePosition: MouseCoordinate,
+        newMousePosition: MouseCoordinate,
+      ): void => {
+        if (!canvasRef.current || disabled) return;
+
+        const canvas: HTMLCanvasElement = canvasRef.current;
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.strokeStyle = lineColor;
+          context.lineJoin = lineJoin;
+          context.lineWidth = lineWidth;
+          context.beginPath();
+          context.moveTo(originalMousePosition.x, originalMousePosition.y);
+          context.lineTo(newMousePosition.x, newMousePosition.y);
+          context.closePath();
+          context.stroke();
+        }
+      };
+
+      if (isPainting) {
+        const newMousePosition = getCoordinates(event);
+        if (mousePosition && newMousePosition) {
+          drawLine(mousePosition, newMousePosition);
+          setMousePosition(newMousePosition);
+        }
+      }
+    },
+    [isPainting, mousePosition, lineColor, lineJoin, lineWidth, disabled],
+  );
+
+  const exitPaint = useCallback(() => {
     const onDrawEnd = (): void => {
       if (!canvasRef.current || disabled) return;
 
@@ -101,22 +114,13 @@ const Mask = (props: MaskProps): React.ReactElement => {
     onDrawEnd();
     setIsPainting(false);
     setMousePosition(null);
-  }
+  }, [onDrawEndCallback, disabled]);
 
   // Effect for MouseDown.
   useEffect(() => {
-    if (!canvasRef.current) return (): void => { };
-
-    const startPaint = (event: MouseEvent) => {
-      if (disabled) return;
-
-      const coordinates = getCoordinates(event);
-      if (coordinates) {
-        setMousePosition(coordinates);
-        setIsPainting(true);
-      }
-    };
-
+    if (!canvasRef.current) {
+      return (): void => { };
+    }
     const canvas: HTMLCanvasElement = canvasRef.current;
     canvas.addEventListener('mousedown', startPaint);
     // @ts-ignore
@@ -127,12 +131,13 @@ const Mask = (props: MaskProps): React.ReactElement => {
       // @ts-ignore
       canvas.removeEventListener('touchstart', startPaint);
     };
-  }, []);
+  }, [startPaint]);
 
   // Effect for MouseMove.
   useEffect(() => {
-    if (!canvasRef.current) return (): void => { };
-
+    if (!canvasRef.current) {
+      return (): void => { };
+    }
     const canvas: HTMLCanvasElement = canvasRef.current;
     canvas.addEventListener('mousemove', paint);
     // @ts-ignore
@@ -147,8 +152,9 @@ const Mask = (props: MaskProps): React.ReactElement => {
 
   // Effect for MouseUp and MouseLeave.
   useEffect(() => {
-    if (!canvasRef.current) return (): void => { };
-
+    if (!canvasRef.current) {
+      return (): void => { };
+    }
     const canvas: HTMLCanvasElement = canvasRef.current;
     canvas.addEventListener('mouseup', exitPaint);
     canvas.addEventListener('mouseleave', exitPaint);

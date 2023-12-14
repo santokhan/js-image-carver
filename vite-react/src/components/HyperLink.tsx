@@ -12,33 +12,22 @@ export type HyperLinkProps = {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
 };
 
-const HyperLink = (props: HyperLinkProps): React.ReactElement | null => {
-  const {
-    link,
-    children,
-    className = '',
-    hoverClassName = null,
-    startEnhancer = null,
-    formatted = true,
-    /* eslint-disable-next-line @typescript-eslint/no-empty-function */
-    onClick = (): void => { },
-  } = props;
+export default function HyperLink({
+  link,
+  children,
+  className = '',
+  hoverClassName = null,
+  startEnhancer = null,
+  formatted = true,
+  onClick = (): void => { },
+}: HyperLinkProps): React.ReactElement | null {
 
-  if (!link?.url) {
-    return null;
-  }
+  if (!link?.url) return null;
 
   const hoverClasses = hoverClassName || 'hover:text-red-600';
-
-  const commonClasses = formatted
-    ? `transition duration-200 ease-in-out whitespace-nowrap flex flex-row items-center ${hoverClasses}`
-    : '';
-
+  const commonClasses = formatted ? `transition duration-200 ease-in-out whitespace-nowrap flex flex-row items-center ${hoverClasses}` : '';
   const caption = link?.caption || undefined;
-
-  const separator = startEnhancer ? (
-    <span className="w-1" />
-  ) : null;
+  const separator = startEnhancer ? <span className="w-1" /> : null;
 
   return (
     <a
@@ -54,5 +43,3 @@ const HyperLink = (props: HyperLinkProps): React.ReactElement | null => {
     </a>
   );
 };
-
-export default HyperLink;

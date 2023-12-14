@@ -10,19 +10,11 @@ type InteractivePostAreaProps = {
 const InteractivePostArea = (props: InteractivePostAreaProps): React.ReactElement | null => {
   const { children, title, className = '' } = props;
 
-  if (!children) {
-    return null;
-  }
-
-  const titleElement = title ? (
-    <div className="text-xs font-light">
-      {title}
-    </div>
-  ) : null;
+  if (!children) return null;
 
   return (
     <ErrorBoundary>
-      {titleElement}
+      {title && <div className="text-xs font-light">{title}</div>}
       <div className={`p-6 border border-dashed border-gray-300 rounded-md overflow-hidden ${className}`}>
         {children}
       </div>

@@ -38,9 +38,7 @@ class ErrorBoundary extends React.Component<Props, State> {
     if (hasError) {
       // You can render any custom fallback UI
       return (
-        <Alert type={ErrorAlert}>
-          Component has crashed
-        </Alert>
+        <Alert type={ErrorAlert}>Component has crashed</Alert>
       );
     }
 

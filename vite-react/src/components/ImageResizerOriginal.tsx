@@ -1,4 +1,4 @@
-import { FC, ReactNode, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ImShrink2 } from 'react-icons/im';
 import { FaRegHandPointer } from 'react-icons/fa';
 
@@ -32,16 +32,21 @@ const maxScale = 100;
 const maxWidthLimit = MAX_WIDTH_LIMIT;
 const maxHeightLimit = MAX_HEIGHT_LIMIT;
 
-type ImageResizerProps = { withSeam?: boolean; withEnergyMap?: boolean; };
+type ImageResizerProps = {
+	withSeam?: boolean,
+	withEnergyMap?: boolean,
+};
 
-const ImageResizer = (props: ImageResizerProps): ReactNode => {
+const ImageResizer = (props: ImageResizerProps): React.ReactElement => {
 	const {
 		withSeam = false,
 		withEnergyMap = false,
 	} = props;
 
-	const [imgAuthor, setImgAuthor] = useState<string | null>('Santo Khan');
-	const [imgAuthorURL, setImgAuthorURL] = useState<string | null>('https://santokhan.github.io/');
+	const [imgAuthor, setImgAuthor] = useState<string | null>('ian dooley');
+	const [imgAuthorURL, setImgAuthorURL] = useState<string | null>(
+		'https://unsplash.com/@sadswim?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText',
+	);
 
 	const [useNaturalSize, setUseNaturalSize] = useState<boolean>(false);
 	const [imageSrc, setImageSrc] = useState<string>(defaultImgSrc);
@@ -63,11 +68,11 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 	const imgRef = useRef<HTMLImageElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
-	function onUseOriginalSizeChange(state: boolean): void {
+	const onUseOriginalSizeChange = (state: boolean): void => {
 		setUseNaturalSize(state);
 	};
 
-	function onReset(): void {
+	const onReset = (): void => {
 		setResizedImgSrc(null);
 		setSeams(null);
 		setWorkingImgSize(null);
@@ -76,7 +81,7 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		setOriginalImgViewSize(null);
 	};
 
-	function onFileSelect(files: FileList | null): void {
+	const onFileSelect = (files: FileList | null): void => {
 		if (!files || !files.length) {
 			return;
 		}
@@ -87,7 +92,7 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		setImageSrc(imageURL);
 	};
 
-	function onWidthSizeChange(size: string | undefined): void {
+	const onWidthSizeChange = (size: string | undefined): void => {
 		const radix = 10;
 		const scale = Math.max(Math.min(parseInt(size || '0', radix), maxScale), minScale);
 		if (size) {
@@ -98,7 +103,7 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		setToWidthScale(scale);
 	};
 
-	function onHeightSizeChange(size: string | undefined): void {
+	const onHeightSizeChange = (size: string | undefined): void => {
 		const radix = 10;
 		const scale = Math.max(Math.min(parseInt(size || '0', radix), maxScale), minScale);
 		if (size) {
@@ -109,7 +114,7 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		setToHeightScale(scale);
 	};
 
-	function onFinish(): void {
+	const onFinish = (): void => {
 		if (!canvasRef.current) {
 			return;
 		}
@@ -124,15 +129,15 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		}, imageType);
 	};
 
-	function onClearMask(): void {
+	const onClearMask = (): void => {
 		setMaskRevision(maskRevision + 1);
 	};
 
-	function onMaskDrawEnd(imgData: ImageData): void {
+	const onMaskDrawEnd = (imgData: ImageData): void => {
 		setMaskImgData(imgData);
 	};
 
-	function applyMask(img: ImageData): void {
+	const applyMask = (img: ImageData): void => {
 		if (!maskImgData) {
 			return;
 		}
@@ -174,13 +179,17 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		} = args;
 
 		const canvas: HTMLCanvasElement | null = canvasRef.current;
-		if (!canvas) return;
+		if (!canvas) {
+			return;
+		}
 
 		canvas.width = w;
 		canvas.height = h;
 
 		const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-		if (!ctx) return;
+		if (!ctx) {
+			return;
+		}
 
 		ctx.putImageData(img, 0, 0, 0, 0, w, h);
 
@@ -190,12 +199,15 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		setProgress(step / steps);
 	};
 
-	function onResize(): void {
+	const onResize = (): void => {
 		const srcImg: HTMLImageElement | null = imgRef.current;
-		if (!srcImg) return;
-
+		if (!srcImg) {
+			return;
+		}
 		const canvas: HTMLCanvasElement | null = canvasRef.current;
-		if (!canvas) return;
+		if (!canvas) {
+			return;
+		}
 
 		onReset();
 		setIsResizing(true);
@@ -223,7 +235,9 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		canvas.height = h;
 
 		const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-		if (!ctx) return;
+		if (!ctx) {
+			return;
+		}
 
 		ctx.drawImage(srcImg, 0, 0, w, h);
 
@@ -246,16 +260,17 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 
 	useEffect(() => {
 		const srcImg: HTMLImageElement | null = imgRef.current;
-		if (!srcImg) return;
-
+		if (!srcImg) {
+			return;
+		}
 		srcImg.addEventListener('load', () => {
-			if (!imgRef.current) return;
-
+			if (!imgRef.current) {
+				return;
+			}
 			setOriginalImgSize({
 				w: imgRef.current.naturalWidth,
 				h: imgRef.current.naturalHeight,
 			});
-
 			setOriginalImgViewSize({
 				w: imgRef.current.width,
 				h: imgRef.current.height,
@@ -265,8 +280,9 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 
 	useEffect(() => {
 		function updateSize(): void {
-			if (!imgRef.current) return;
-
+			if (!imgRef.current) {
+				return;
+			}
 			setOriginalImgViewSize({
 				w: imgRef.current.width,
 				h: imgRef.current.height,
@@ -284,64 +300,61 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 		</div>
 	) : null;
 
-	const ImageSize: FC<{ imgSize: ImageSize | null }> = ({ imgSize }) => imgSize ? (
-		<sup className="text-xs text-gray-400 whitespace-nowrap">
-			{`${imgSize.w} x ${imgSize.h} px`}
-		</sup>
-	) : null
+	const resizerControls = (
+		<div className="flex flex-col justify-start items-start mb-1">
+
+			<div className="mb-3 flex flex-row">
+				<div className="mr-2">
+					<FileSelector onSelect={onFileSelect} disabled={isResizing} accept="image/png,image/jpeg">Choose image</FileSelector>
+				</div>
+				<div>
+					<Button onClick={onResize} disabled={isResizing || !toWidthScaleString} startEnhancer={<ImShrink2 size={14} />}>Resize</Button>
+				</div>
+			</div>
+
+			<div className="flex flex-col sm:flex-row">
+				<div className="mb-2 mr-6 flex flex-row items-center">
+					<div className="text-xs mr-1">Width</div>
+					<Input
+						onChange={onWidthSizeChange}
+						disabled={isResizing}
+						// @ts-ignore
+						type="number"
+						min={minScale}
+						max={maxScale}
+						className="w-14 text-center"
+						value={toWidthScaleString}
+					/>
+					<div className="text-xs ml-1 mr-4">%</div>
+
+					<div className="text-xs mr-1">Height</div>
+					<Input
+						onChange={onHeightSizeChange}
+						disabled={isResizing}
+						// @ts-ignore
+						type="number"
+						min={minScale}
+						max={maxScale}
+						className="w-14 text-center"
+						value={toHeightScaleString}
+					/>
+					<div className="text-xs ml-1">%</div>
+				</div>
+
+				<div className="mb-2">
+					<Checkbox disabled={isResizing} onChange={onUseOriginalSizeChange}>
+						<span className="text-xs">
+							Higher quality <span className="text-gray-400">(takes longer)</span>
+						</span>
+					</Checkbox>
+				</div>
+			</div>
+		</div>
+	);
 
 	return (
 		<div>
-			{/* {resizerControls} */}
-			<div className="flex flex-col justify-start items-start mb-1">
-
-				<div className="mb-3 flex flex-row">
-					<div className="mr-2">
-						<FileSelector onSelect={onFileSelect} disabled={isResizing} accept="image/png,image/jpeg">Choose image</FileSelector>
-					</div>
-					<div>
-						<Button onClick={onResize} disabled={isResizing || !toWidthScaleString} startEnhancer={<ImShrink2 size={14} />}>Resize</Button>
-					</div>
-				</div>
-
-				<div className="flex flex-col sm:flex-row">
-					<div className="mb-2 mr-6 flex flex-row items-center">
-						<div className="text-xs mr-1">Width</div>
-						<Input
-							onChange={onWidthSizeChange}
-							disabled={isResizing}
-							// @ts-ignore
-							type="number"
-							min={minScale}
-							max={maxScale}
-							className="w-14 text-center"
-							value={toWidthScaleString}
-						/>
-						<div className="text-xs ml-1 mr-4">%</div>
-
-						<div className="text-xs mr-1">Height</div>
-						<Input
-							onChange={onHeightSizeChange}
-							disabled={isResizing}
-							// @ts-ignore
-							type="number"
-							min={minScale}
-							max={maxScale}
-							className="w-14 text-center"
-							value={toHeightScaleString}
-						/>
-						<div className="text-xs ml-1">%</div>
-					</div>
-
-					<div className="mb-2">
-						<Checkbox disabled={isResizing} onChange={onUseOriginalSizeChange}>
-							<span className="text-xs">
-								Higher quality <span className="text-gray-400">(takes longer)</span>
-							</span>
-						</Checkbox>
-					</div>
-				</div>
-			</div>
+			{resizerControls}
 
 			{/* Resizing progress */}
 			<div className="mb-6">
@@ -352,7 +365,13 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 			<FadeIn className={`mb-6 ${resizedImgSrc || !energyMap ? 'hidden' : ''}`}>
 				<div>
 					<b>Resized image</b>
-					<ImageSize imgSize={workingImgSize} />
+					{
+						workingImgSize ? (
+							<sup className="text-xs text-gray-400 whitespace-nowrap">
+								{`${workingImgSize.w} x ${workingImgSize.h} px`}
+							</sup>
+						) : null
+					}
 					{
 						(workingImgSize?.w && originalImgViewSize?.w && workingImgSize.w > originalImgViewSize.w) ?
 							<span className="text-xs text-gray-400 ml-4">↔︎ scrollable</span>
@@ -368,13 +387,18 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 
 			{/* Resized Image */}
 			{
-				workingImgSize && resizedImgSrc ? (<FadeIn className="mb-6">
-					<div>
-						<b>Resized image</b>
-						<ImageSize imgSize={workingImgSize} />
-					</div>
-					<img src={resizedImgSrc} width={workingImgSize.w} height={workingImgSize.h} alt="Resized" style={{ margin: 0 }} />
-				</FadeIn>) : ""
+				workingImgSize && resizedImgSrc ?
+					<FadeIn className="mb-6">
+						<div>
+							<b>Resized image</b>
+							<sup className="text-xs text-gray-400 whitespace-nowrap">
+								{`${workingImgSize.w} x ${workingImgSize.h} px`}
+							</sup>
+						</div>
+						<img src={resizedImgSrc} width={workingImgSize.w} height={workingImgSize.h} alt="Resized" style={{ margin: 0 }} />
+					</FadeIn>
+					:
+					""
 			}
 
 			{/* debugEnergyMap */}
@@ -395,7 +419,13 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 						<div className="sm:flex-1">
 							<b>Original image</b>
 							{/* {originalImageSizeText} */}
-							<ImageSize imgSize={originalImgSize} />
+							{
+								originalImgSize ? (
+									<sup className="text-xs text-gray-400 whitespace-nowrap">
+										{`${originalImgSize.w} x ${originalImgSize.h} px`}
+									</sup>
+								) : null
+							}
 						</div>
 						<div className="text-xs text-gray-400 flex flex-row items-center justify-self-end">
 							<div className="mr-1"><FaRegHandPointer size={12} /></div>
@@ -406,7 +436,7 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 				<img src={imageSrc} alt="Original" ref={imgRef} style={{ margin: 0 }} />
 				{/* {mask} */}
 				{
-					originalImgViewSize ?
+					originalImgViewSize ? (
 						<div className="flex flex-col" style={{ marginTop: `-${originalImgViewSize.h}px` }}>
 							<Mask
 								width={originalImgViewSize.w}
@@ -433,16 +463,17 @@ const ImageResizer = (props: ImageResizerProps): ReactNode => {
 								</div>
 							</div>
 						</div>
-						:
-						null
+					) : null
 				}
 
 				{/* {imgAuthorLink} */}
 				{
-					imgAuthor && imgAuthorURL ? (<div className="text-xs text-gray-400 mt-2 flex justify-center items-center font-light">
-						<div className="mr-1">Photo by</div>
-						<a href={imgAuthorURL} style={{ color: '#aaa', fontWeight: 300 }} target="_blank" rel="noreferrer">{imgAuthor}</a>
-					</div>) : null
+					imgAuthor && imgAuthorURL ? (
+						<div className="text-xs text-gray-400 mt-2 flex justify-center items-center font-light">
+							<div className="mr-1">Photo by</div>
+							<a href={imgAuthorURL} style={{ color: '#aaa', fontWeight: 300 }} target="_blank" rel="noreferrer">{imgAuthor}</a>
+						</div>
+					) : null
 				}
 			</FadeIn>
 		</div>
