@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <FadeIn>
       <div className="flex flex-row justify-center items-center mb-1 sm:mb-0">
         <div className="flex-1 sm:flex sm:flex-row sm:items-center">
@@ -50,4 +50,4 @@ import FadeIn from './FadeIn.vue';
 
 <style scoped>
 
-</style>
+</style> -->
