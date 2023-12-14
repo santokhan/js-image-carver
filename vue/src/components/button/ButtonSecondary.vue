@@ -1,21 +1,20 @@
 <template>
-    <button @click="onClick" type="button" :disabled="disabled"
-        :class="['transition duration-200 ease-in-out flex flex-row items-center uppercase font-medium text-xs tracking-wider']">
-        <slot name="startEnhancer"></slot>
-        <slot></slot>
+    <button @click="props.onClick" type="button" :disabled="props.disabled" :class="[
+        'w-8 h-8 rounded-full border',
+        'bg-white hover:bg-white',
+        'text-black hover:text-black',
+        'grid place-items-center',
+        'transition duration-200 ease-in-out text-xs'
+    ]">
+        <MdLayersClear />
     </button>
 </template>
 
 <script setup lang="ts">
-type ButtonKind = 'primary' | 'secondary';
+import MdLayersClear from '../mask/MdLayersClear.vue';
 
-type ButtonProps = {
-    onClick?: () => void,
-    disabled?: boolean,
-    kind?: ButtonKind,
-};
-
-const props = defineProps<ButtonProps>()
+const props = defineProps<{
+    onClick: () => void,
+    disabled: boolean,
+}>()
 </script>
-
-<style scoped></style>

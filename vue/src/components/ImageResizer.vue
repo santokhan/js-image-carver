@@ -1,89 +1,3 @@
-<template>
-    <div class="w-full space-y-4">
-        <form class="space-y-4" @submit="onResize">
-            <div class="flex items-center justify-center w-full">
-                <label for="dropzone-file"
-                    class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 20 16">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                        </svg>
-                        <p class="mb-2 text-sm text-gray-500">
-                            <span class="font-semibold">Click to upload</span>
-                        </p>
-                        <p class="text-xs text-gray-500">
-                            SVG, PNG, JPG or GIF (MAX. 800x400px)
-                        </p>
-                    </div>
-                    <input id="dropzone-file" type="file" class="hidden" accept="image/*"
-                        @change="(e: any) => { onFileSelect(e.target.files) }" />
-                </label>
-            </div>
-
-            <div class="flex items-center gap-8">
-                <NumberInput title="Width" class="w-1/2" :value="toWidthScaleString" :handleChange="onWidthSizeChange" />
-                <NumberInput title="Height" class="w-1/2" :value="toHeightScaleString" :handleChange="onHeightSizeChange" />
-                <CheckBox />
-                <ResizeButton :disabled="isResizing" />
-            </div>
-            <hr>
-        </form>
-        <div v-if="workingImgSize && resizedImgSrc" class="rounded space-y-2">
-            <div class="flex justify-between">
-                <p class="font-medium">Resized
-                    <span class="text-sm font-normal">{{ workingImgSize.w }} x {{ workingImgSize.h }} px</span>
-                </p>
-                <div class="border w-8 h-8 grid place-items-center rounded-lg">
-                    <button type="button" @click="downloadURL"><i class="fa fa-download" aria-hidden="true"></i></button>
-                    <a ref="downloadRef" download="resized-image.png" @click="downloadURL"></a>
-                </div>
-            </div>
-            <img :src="resizedImgSrc" :width="workingImgSize.w" :height="workingImgSize.h" alt="Resized" class="w-full" />
-        </div>
-        <FadeIn :class="['w-full mb-6 space-y-4', resizedImgSrc || !energyMap ? 'hidden' : '']">
-            <p class="font-medium">Resizing Image
-                <span v-if="workingImgSize" class="text-sm font-normal">{{ workingImgSize.w }} x {{ workingImgSize.h }}
-                    px</span>
-            </p>
-            <div className="w-full overflow-scroll">
-                <canvas ref="canvasRef"></canvas>
-                <div v-if="workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
-                    <Seams :seams="seams" :width="workingImgSize.w" :height="workingImgSize.h" />
-                </div>
-            </div>
-        </FadeIn>
-        <div class="rounded space-y-2" v-if="workingImgSize && energyMap">
-            <!-- <EnergyMap :energyMap="energyMap" :width="workingImgSize.w" :height="workingImgSize.h" /> -->
-            <!-- {seamsCanvas} -->
-        </div>
-        <div class="w-full rounded space-y-2">
-            <div class="flex items-center gap-2">
-                <p class="font-medium">Original</p>
-                <div v-if="originalImgSize" className="text-xs text-gray-600 whitespace-nowrap">
-                    {{ `${originalImgSize.w} x ${originalImgSize.h} px` }}
-                </div>
-            </div>
-            <img :src="imageSrc" alt="Original" ref="imgRef" class="w-full" />
-        </div>
-    </div>
-
-    <!-- <div v-if="imgAuthor && imgAuthorURL" class="text-xs text-gray-400 mt-2 flex justify-center items-center font-light">
-        <div class="mr-1">Photo by</div>
-        <a :href="imgAuthorURL" style="color: #aaa; font-weight: 300;" target="_blank" rel="noreferrer">
-            {{ imgAuthor }}
-        </a>
-    </div> -->
-
-    <div v-if="props.withSeam && workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
-        <Seams :seams="seams" :width="workingImgSize.w" :height="workingImgSize.h" />
-    </div>
-
-    <!-- <span v-if="workingImgSize?.w && originalImgViewSize?.w && workingImgSize.w > originalImgViewSize.w"
-        className="text-xs text-gray-400 ml-4">↔︎ scrollable</span> -->
-</template>
-  
 <script lang="ts" setup>
 import { ref, watchEffect } from 'vue'
 import defaultImgSrc from '../assets/02.jpg'
@@ -98,14 +12,17 @@ import {
     MAX_HEIGHT_LIMIT,
 } from '../utils/contentAwareResizer'
 import { Coordinate, getPixel, setPixel } from '../utils/image';
-import FileSelector from './FileSelector.vue';
-import ButtonPrimary from './button/ButtonPrimary.vue';
 import NumberInput from './input/NumberInput.vue';
 import ResizeButton from './button/ResizeButton.vue';
 import CheckBox from './input/CheckBox.vue';
 import EnergyMap from './EnergyMap.vue';
 import Seams from './Seams.vue';
 import FadeIn from './FadeIn.vue';
+import OriginalImgViewSize from './image-resizer/OriginalImgViewSize.vue';
+import UploadIcon from './form/UploadIcon.vue';
+import Mask from './image-resizer/Mask.vue';
+import ButtonSecondary from './button/ButtonSecondary.vue';
+import FaHandPainter from './mask/FaHandPainter.vue';
 
 const defaultWidthScale = 50;
 const defaultHeightScale = 70;
@@ -121,10 +38,8 @@ type ImageResizerProps = {
 
 const props = defineProps<ImageResizerProps>()
 
-const imgAuthor = ref<string | null>('ian dooley');
-const imgAuthorURL = ref<string | null>(
-    'https://unsplash.com/@sadswim?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText',
-);
+const imgAuthor = ref<string | null>('Santo Khan');
+const imgAuthorURL = ref<string | null>('https://santokhan.github.io');
 const useNaturalSize = ref<boolean>(false);
 const imageSrc = ref<string>(defaultImgSrc);
 const resizedImgSrc = ref<string | null>(null);
@@ -209,6 +124,7 @@ const onFinish = (): void => {
 
 const onClearMask = (): void => {
     maskRevision.value = maskRevision.value + 1;
+    console.log({ maskRevision: maskRevision.value });
 };
 
 const onMaskDrawEnd = (imgData: ImageData): void => {
@@ -405,4 +321,138 @@ watchEffect(() => {
     }
 })
 </script>
+
+<template>
+    <div class="w-full space-y-4">
+        <!-- {resizerControls} -->
+        <form class="space-y-4" @submit="onResize">
+            <div class="flex items-center justify-center w-full">
+                <label for="dropzone-file"
+                    class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <UploadIcon />
+                        <p class="mb-2 text-sm text-gray-500">
+                            <span class="font-semibold">Click to upload</span>
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            SVG, PNG, JPG or GIF (MAX. 800x400px)
+                        </p>
+                    </div>
+                    <input id="dropzone-file" type="file" class="hidden" accept="image/*"
+                        @change="(e: any) => { onFileSelect(e.target.files) }" />
+                </label>
+            </div>
+
+            <div class="w-full flex flex-wrap items-center gap-4 sm:gap-8">
+                <div class="flex-grow flex items-center gap-4 sm:gap-8">
+                    <NumberInput title="Width" class="w-1/2" :value="toWidthScaleString"
+                        :handleChange="onWidthSizeChange" />
+                    <NumberInput title="Height" class="w-1/2" :value="toHeightScaleString"
+                        :handleChange="onHeightSizeChange" />
+                </div>
+                <div class="flex-grow flex flex-wrap items-center justify-between gap-4 sm:gap-8">
+                    <CheckBox />
+                    <ResizeButton :disabled="isResizing" />
+                </div>
+            </div>
+            <hr>
+        </form>
+
+        <!-- Resizing progress -->
+        <div class=""></div>
+
+        <!-- Working Image -->
+        <div v-if="workingImgSize && resizedImgSrc" class="rounded space-y-2">
+            <div class="flex justify-between">
+                <p class="font-medium">Resized
+                    <span class="text-sm font-normal">{{ workingImgSize.w }} x {{ workingImgSize.h }} px</span>
+                </p>
+                <div class="border w-8 h-8 grid place-items-center rounded-lg">
+                    <button type="button" @click="downloadURL"><i class="fa fa-download" aria-hidden="true"></i></button>
+                    <a ref="downloadRef" download="resized-image.png" @click="downloadURL"></a>
+                </div>
+            </div>
+            <img :src="resizedImgSrc" :width="workingImgSize.w" :height="workingImgSize.h" alt="Resized" class="w-full" />
+        </div>
+
+        <!-- Resized Image -->
+        <FadeIn :class="['w-full mb-6 space-y-4 relative', resizedImgSrc || !energyMap ? 'hidden' : '']">
+            <p class="font-medium">
+                Resizing Image
+                <span v-if="workingImgSize" class="text-sm font-normal">
+                    {{ workingImgSize.w }} x {{ workingImgSize.h }}px
+                </span>
+            </p>
+            <div className="w-full relative overflow-scroll">
+                <canvas ref="canvasRef"></canvas>
+                <div v-if="workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
+                    <Seams :seams="seams" :width="workingImgSize.w" :height="workingImgSize.h" />
+                </div>
+            </div>
+        </FadeIn>
+
+        <!-- debugEnergyMap -->
+        <div class="rounded space-y-2" v-if="workingImgSize && energyMap">
+            <!-- <EnergyMap :energyMap="energyMap" :width="workingImgSize.w" :height="workingImgSize.h" /> -->
+            <!-- {seamsCanvas} -->
+        </div>
+
+        <!-- originalImage -->
+        <FadeIn>
+            <div class="w-full flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-1">
+                    <p class="font-medium">Original</p>
+                    <div v-if="originalImgSize" className="text-xs text-gray-600 whitespace-nowrap">
+                        {{ `${originalImgSize.w} x ${originalImgSize.h} px` }}
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <FaHandPainter /> <span class="text-xs">Mask to remove</span>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <img :src="imageSrc" alt="Original" ref="imgRef" class="w-full" />
+                </div>
+                <!-- mask -->
+                <div v-if="originalImgViewSize" className="flex flex-col" :style="{
+                    marginTop: `-${originalImgViewSize.h}px`,
+                }">
+                    <Mask :width="originalImgViewSize.w" :height="originalImgViewSize.h" :disabled="isResizing"
+                        :onDrawEnd="onMaskDrawEnd" :revision="maskRevision" />
+                    <div className="flex flex-row justify-end pr-1" :style="{ marginTop: '-36px', zIndex: 100 }">
+                        <!-- [clear mask] -->
+                        <ButtonSecondary :onClick="onClearMask" :disabled="isResizing || !maskImgData" />
+                    </div>
+                </div>
+            </div>
+        </FadeIn>
+    </div>
+
+
+    <!-- <div v-if="imgAuthor && imgAuthorURL" class="text-xs text-gray-400 mt-2 flex justify-center items-center font-light">
+        <div class="mr-1">Photo by</div>
+        <a :href="imgAuthorURL" style="color: #aaa; font-weight: 300;" target="_blank" rel="noreferrer">
+            {{ imgAuthor }}
+        </a>
+    </div> -->
+
+    <div v-if="props.withSeam && workingImgSize && seams" :style="{ marginTop: `-${workingImgSize.h}px` }">
+        <Seams :seams="seams" :width="workingImgSize.w" :height="workingImgSize.h" />
+    </div>
+
+    <!-- <span v-if="workingImgSize?.w && originalImgViewSize?.w && workingImgSize.w > originalImgViewSize.w"
+        className="text-xs text-gray-400 ml-4">↔︎ scrollable</span> -->
+
+    <!-- originalImage component in react  -->
+    <!-- <div v-if="originalImgViewSize" class="flex flex-col" :style="{ marginTop: `-${originalImgViewSize.h}px` }">
+        <Mask :width="originalImgViewSize.w" :height="originalImgViewSize.h" :disabled="isResizing" @drawEnd="onMaskDrawEnd"
+            :revision="maskRevision" />
+        <div class="flex flex-row justify-end" :style="{ marginTop: '-36px', zIndex: 100 }">
+            <div class="mr-1" title="mask control">
+            </div>
+        </div>
+    </div> -->
+</template>
+
   
