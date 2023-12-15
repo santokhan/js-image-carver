@@ -86,6 +86,7 @@ const onFileSelect = (files: FileList | null): void => {
 };
 
 const onWidthSizeChange = (size: string | undefined): void => {
+    // console.log(size);
     const radix = 10;
     const scale = Math.max(Math.min(parseInt(size || '0', radix), maxScale), minScale);
     if (size) {
@@ -97,6 +98,7 @@ const onWidthSizeChange = (size: string | undefined): void => {
 };
 
 const onHeightSizeChange = (size: string | undefined): void => {
+    // console.log(size);
     const radix = 10;
     const scale = Math.max(Math.min(parseInt(size || '0', radix), maxScale), minScale);
     if (size) {
@@ -331,12 +333,8 @@ watchEffect(() => {
                     class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
                         <UploadIcon />
-                        <p class="mb-2 text-sm text-gray-500">
-                            <span class="font-semibold">Click to upload</span>
-                        </p>
-                        <p class="text-xs text-gray-500">
-                            SVG, PNG, JPG or GIF (MAX. 800x400px)
-                        </p>
+                        <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click to upload</span></p>
+                        <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                     </div>
                     <input id="dropzone-file" type="file" class="hidden" accept="image/*"
                         @change="(e: any) => { onFileSelect(e.target.files) }" />
